@@ -1,0 +1,42 @@
+version: "3"
+services:
+  # Fluent Bit
+  fluentbit:
+   container_name: fluentbit
+   image: fluent/fluent-bit:latest
+   ports:
+     - 24224:24224
+   volumes:
+     - ./fluent-bit:/fluent-bit/etc
+  # Simple Go application producing logs every second
+  logging:
+    container_name: my-logging-app
+    build:
+      context: logging
+    restart: always
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: 127.0.0.1:24224
+        tag: example-tag
+    depends_on:
+      - fluentbit
+  # Splunk Enterprise server
+  splunk:
+    image: splunk/splunk:latest
+    container_name: splunk
+    environment:
+      - SPLUNK_START_ARGS=--accept-license
+      - SPLUNK_HEC_TOKEN=00000000-0000-0000-0000-0000000000000
+      - SPLUNK_PASSWORD=changeme
+    ports:
+      - 18000:8000
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - ./splunk.yml:/tmp/defaults/default.yml
+      - /opt/splunk/var
+      - /opt/splunk/etc

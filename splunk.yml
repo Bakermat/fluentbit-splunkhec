@@ -1,0 +1,17 @@
+splunk:
+    conf:
+      indexes:
+        directory: /opt/splunk/etc/apps/search/local
+        content:
+          container-logs:
+            coldPath: $SPLUNK_DB/container-logs/colddb
+            datatype: event
+            homePath: $SPLUNK_DB/container-logs/db
+            maxTotalDataSizeMB: 512000
+            thawedPath: $SPLUNK_DB/container-logs/thaweddb
+          metrics:
+            coldPath: $SPLUNK_DB/metrics/colddb
+            datatype: metric
+            homePath: $SPLUNK_DB/metrics/db
+            maxTotalDataSizeMB: 512000
+            thawedPath: $SPLUNK_DB/metrics/thaweddb
